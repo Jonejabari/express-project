@@ -13,6 +13,19 @@ const contactSchema = mongoose.Schema({
         type: String,
         required: [true, "Please add phone number"],
     },
+    /*full_name: {
+        type: String,
+        required: [true, "Please add full name"],
+    },
+    address: {
+        type: String,
+        required: [true, "Please add address"],
+    },
+    education: {
+        type: String,
+        required: [true, "Please add education"],
+    },*/
+
 }, 
 {
     timestamps: true,
