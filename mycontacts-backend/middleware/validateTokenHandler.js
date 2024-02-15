@@ -1,0 +1,26 @@
+const asyncHandler = require("express-async-handler");
+const jwt = require("jsonwebtoken");
+
+
+const validationToken = asyncHandler(async (req, res, next) => {
+    let token;
+    let authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer")){
+        token = authHeader.split(" ")[1];
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+            if (err){
+                res.status(401);
+                throw new Error("user is not authorized");
+            }
+            //verify the token and extract info from token
+            req.user = decoded.user;
+            next();
+        });
+        if(!token){
+            req.status(401);
+            throw new Error("User is not authorized or token is missing");
+        }
+    }
+});
+
+module.exports = validationToken;
