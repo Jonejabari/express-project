@@ -11,30 +11,34 @@ const jwt = require("jsonwebtoken");
 const registerUser =  asyncHandler (async (req, res) => {
     //destracture registaration requirements
     const {username, email, password} = req.body;
+
+    // Validate required fields
     if(!username || !email || !password){
         //so the validation is failed
         res.status(400);
         throw new Error("All fields are mandotory!");
     }
 
-    //check wheather we have already existing email address or user in database
+    // Check if the email is already registered
     const userAvailable = await User.findOne({email});
     if(userAvailable){
         res.status(400); //validation error
         throw new Error("User Already registered!");
     }
 
-    //create hash password
+    // Create hashed password
     const hashedPassword = await bcrypt.hash(password, 10); // 10 is just number of 
+   
     console.log("Hashed Password: ", hashedPassword);
 
+     // Create a new user in the database
     const user = await User.create({
         username,
         email,
         password: hashedPassword,
     });
 
-    //once user is created
+    // Respond with user details
     console.log(`User create ${user}`);
     if(user){
         res.status(201).json({_id: user.id, email: user.email});
@@ -53,14 +57,17 @@ const registerUser =  asyncHandler (async (req, res) => {
 //login user function
 const loginUser =  asyncHandler (async (req, res) => {
     const {email, password} = req.body;
+    // Validate required fields
     if (!email || !password){
         res.status(400);
         throw new Error("All field are mandatory!");
     }
-
+// Find user by email
 const user = await User.findOne({email});
+
 //compare password with hashedpassword
 if(user && (await bcrypt.compare(password, user.password))){
+    // Create and send an access token upon successful login
     const accessToken = jwt.sign({
         //user as a payload
         user: {
@@ -83,6 +90,7 @@ if(user && (await bcrypt.compare(password, user.password))){
 //@desc current info user
 //@route GET /api/user/current
 //@access private
+// Get current user information
 const currentUser =  asyncHandler (async (req, res) => {
     res.json(req.user);
 });

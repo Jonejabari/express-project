@@ -1,0 +1,162 @@
+						code documentation
+
+server.js
+
+=> Here's a breakdown of the server.js:
+
+1. Imports:
+   - `express`: The web application framework for Node.js.
+   - `errorHandler`: Custom middleware for handling errors in the application.
+   - `connectDb`: Function to establish a connection to the database.
+   - `dotenv`: Loads environment variables from a `.env` file.
+
+2. **Database Connection:**
+   - `connectDb()`: Calls a function to establish a connection to the database.
+
+3. **Express Application Setup:**
+   - `const app = express();`: Creates an instance of the Express application.
+
+4. **Port Configuration:**
+   - `const port = process.env.PORT || 5000;`: Defines the port number for the server, 
+   using the environment variable or defaulting to 5000.
+
+5. **Middleware:**
+   - `app.use(express.json());`: Middleware to parse incoming JSON requests.
+
+6. **Routes:**
+   - `app.use('/api/contacts', require("./routes/contactsRoutes"));`: 
+      Associates the contacts-related routes with the "/api/contacts" path.
+   - `app.use('/api/users', require("./routes/userRoutes"));`: 
+      Associates the user-related routes with the "/api/users" path.
+
+7. **Error Handling:**
+   - `app.use(errorHandler);`: Applies the custom error handling middleware to handle errors in the application.
+
+8. **Server Start:**
+   - `app.listen(port, () => {...});`: Starts the server and listens on the specified port, 
+      logging a message when the server is running. Note the use of backticks for string interpolation in the log statement.
+
+
+userRoutes.js
+
+=> Here's a breakdown of the code:
+
+1. **Imports:**
+   - `express`: The Express.js framework for building the router.
+   - `{ registerUser, loginUser, currentUser }`: Importing user-related controller functions from the `userController` module.
+   - `validationToken`: Importing middleware for validating authentication tokens from the `validateTokenHandler` module.
+
+2. **Router Creation:**
+   - `const router = express.Router();`: Creates an instance of the Express router.
+
+3. **Routes:**
+   - `router.post("/register", registerUser);`: Defines a route for user registration using the 
+`registerUser` controller function. It is accessible via the `POST /api/users/register` endpoint.
+   - `router.post("/login", loginUser);`: Defines a route for user login using the `loginUser` controller function. 
+It is accessible via the `POST /api/users/login` endpoint.
+   - `router.get("/current", validationToken, currentUser);`: Defines a route for retrieving the current user's information 
+using the `currentUser` controller function. Token validation is enforced using the `validationToken` middleware. This route is accessible via the `GET /api/users/current` endpoint.
+
+4. **Export Router:**
+   - `module.exports = router;`: Exports the router instance to be used in other parts of the application.
+
+This router is intended to be used in the main Express application by associating it with a specific path, such as `/api/users`.
+
+
+userModels.js
+
+Here's a breakdown of the code:
+
+1. **Imports:**
+   - `mongoose`: The Mongoose library for MongoDB and Node.js.
+
+2. **Schema Definition:**
+   - `const userSchema = mongoose.Schema({ ... });`: Defines the user schema with three fields: `username`, `email`, and `password`. Each field has its own specifications regarding type, required status, and uniqueness.
+
+3. **Timestamps:**
+   - `{ timestamps: true }`: Configures the schema to include `createdAt` and `updatedAt` fields, which are automatically managed by Mongoose.
+
+4. **Model Creation:**
+   - `const User = mongoose.model("User", userSchema);`: Creates a Mongoose model named "User" based on the defined schema.
+
+5. **Export Model:**
+   - `module.exports = User;`: Exports the User model to be used in other parts of the application.
+
+This code provides a structured representation of a user in the MongoDB database, allowing you to interact with user data using the Mongoose model in your Node.js application.
+
+
+errorHandler.js
+
+=> Here's a breakdown of the code:
+
+1. **Imports:**
+   - `{ constants }`: Importing constants from an external file, possibly containing error codes.
+
+2. **Error Handling Middleware:**
+   - `const errorHandler = (err, req, res, next) => { ... }`: Defines an error handling middleware function that takes in the error (`err`), request (`req`), response (`res`), 
+and the `next` function.
+
+3. **HTTP Status Code:**
+   - `const statusCode = res.statusCode ? res.statusCode : 500;`: Determines the HTTP status code from the response or defaults to 500 if not available.
+
+4. **Switch Statement:**
+   - Uses a switch statement to handle different error scenarios based on the received status code.
+   - Each case corresponds to a specific constant representing an error type, and it sends a JSON response with details about the error.
+
+5. **Default Case:**
+   - The `default` case logs to the console when there is no error.
+
+6. **Export Middleware:**
+   - `module.exports = errorHandler;`: Exports the error handling middleware for use in other parts of the application.
+
+This middleware can be used in an Express.js application to handle various types of errors and send appropriate responses to clients. 
+Make sure to call it in your application using `app.use(errorHandler)` after defining your routes.
+
+
+ValidationToken
+
+=> Here's a breakdown of the code:
+
+1. **Imports:**
+   - `asyncHandler`: A utility function for handling asynchronous operations in Express middleware.
+   - `jwt`: The `jsonwebtoken` library for working with JSON Web Tokens.
+
+2. **Middleware Definition:**
+   - `const validationToken = asyncHandler(async (req, res, next) => { ... });`: Defines a middleware function using `asyncHandler` to handle asynchronous operations.
+
+3. **Token Verification:**
+   - Checks if the authorization header is present and starts with "Bearer".
+   - If valid, extracts the token and verifies it using `jwt.verify`.
+   - If verification fails, sets the HTTP status to 401 (Unauthorized) and throws an error.
+
+4. **Decoded Token:**
+   - If verification is successful, extracts user information from the decoded token and attaches it to the request object (`req.user`).
+
+5. **Handling Missing Token:**
+   - If no valid token is present in the authorization header, sets the HTTP status to 401 and throws an error indicating that the user is not authorized or the token is missing.
+
+6. **Export Middleware:**
+   - `module.exports = validationToken;`: Exports the `validationToken` middleware for use in other parts of the application.
+
+This middleware can be used in your Express routes to ensure that only authenticated users with a valid token can access protected endpoints. 
+Make sure to add it to the routes where token validation is required.
+
+
+UserController.js
+
+This code defines functions for user registration, user login, and retrieving current user information. These functions use the Express.js 
+framework along with the express-async-handler, bcrypt, and jsonwebtoken libraries. Below is a breakdown of each function: see its documentation..
+
+=> Here's a summary of each function:
+
+1. **`registerUser`**: Handles user registration, validating input fields, checking for existing users with the same email, 
+      creating a hashed password, and creating a new user in the database.
+
+2. **`loginUser`**: Handles user login, validating input fields, finding the user by email, comparing the password with the hashed password,
+      and creating and sending an access token upon successful login.
+
+3. **`currentUser`**: Retrieves and sends the current user's information, which is stored in the `req.user` object. This function assumes that
+     the `validationToken` middleware is used to attach user information to the request object.
+
+      Note: Make sure to use these functions in your Express routes by importing and associating them with the appropriate routes. 
+      Also, ensure that the necessary middleware, such as `validationToken`, is applied where needed. => Jone Jabari 
