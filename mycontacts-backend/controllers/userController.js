@@ -1,6 +1,9 @@
 const asyncHandler = require("express-async-handler");
-const bcrypt = require ("bcrypt"); //find the documentation of bcrypt on npm documentation
-const User = require("../models/userModel"); //import it to interact with mongo db
+
+//find the documentation of bcrypt on npm documentation
+const bcrypt = require ("bcrypt"); 
+//import it to interact with mongo db
+const User = require("../models/userModel"); 
 const jwt = require("jsonwebtoken");
 
 
@@ -22,12 +25,13 @@ const registerUser =  asyncHandler (async (req, res) => {
     // Check if the email is already registered
     const userAvailable = await User.findOne({email});
     if(userAvailable){
-        res.status(400); //validation error
+        res.status(400); 
+        //validation error
         throw new Error("User Already registered!");
     }
 
     // Create hashed password
-    const hashedPassword = await bcrypt.hash(password, 10); // 10 is just number of 
+    const hashedPassword = await bcrypt.hash(password, 10); // 10 is just number
    
     console.log("Hashed Password: ", hashedPassword);
 
@@ -46,8 +50,7 @@ const registerUser =  asyncHandler (async (req, res) => {
         res.status(400);
         throw new Error("user data not valid");
     }
-
-
+    
     res.json({ message: "Register the user"});
 });
 
@@ -77,7 +80,7 @@ if(user && (await bcrypt.compare(password, user.password))){
             
         }// payload which is going to be embarded in accessToken
     }, process.env.ACCESS_TOKEN_SECRET,
-    {expiresIn: "10m"}
+    {expiresIn: "20m"}
     ); 
     res.status(200).json({ accessToken });
 }else{
