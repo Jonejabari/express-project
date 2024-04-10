@@ -1,1 +1,1 @@
-This is the backend-api using express. The documetation is there.
+This is the backend-api using nodejs. The documetation is available for better clarification.
